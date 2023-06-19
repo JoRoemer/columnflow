@@ -1,6 +1,7 @@
 [submodule "modules/law"]
     path = modules/law
-    url = ../../riga/law.git
+    url = ../../JoRoemer/law.git
+    branch = ignore_empty_files
 
 [submodule "modules/order"]
     path = modules/order
