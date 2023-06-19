@@ -243,7 +243,7 @@ create_analysis() {
 
     echo_color cyan "setup submodules"
     mkdir -p modules
-    if [ "${cf_use_ssh}" ]; then
+    if [ "${cf_use_ssh}" = True ]; then
         git submodule add -b "${fetch_cf_branch}" git@github.com:columnflow/columnflow.git modules/columnflow
         if [ "${cf_analysis_flavor}" = "cms_minimal" ]; then
             git submodule add -b "${fetch_cmsdb_branch}" git@github.com:uhh-cms/cmsdb.git modules/cmsdb
