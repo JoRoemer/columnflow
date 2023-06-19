@@ -141,14 +141,14 @@ class ReduceEvents(
         n_reduced = 0
 
         # let the lfn_task prepare the nano file (basically determine a good pfn)
-        [(lfn_index, input_file)] = lfn_task.iter_nano_files(self)
+        [(lfn_index, input_file, tree_name)] = lfn_task.iter_nano_files(self)
 
         # open the input file with uproot
         with self.publish_step("load and open ..."):
             nano_file = input_file.load(formatter="uproot")
 
         # collect input paths
-        input_paths = [nano_file]
+        input_paths = [(nano_file, tree_name)]
         input_paths.append(inputs["selection"]["results"].path)
         input_paths.extend([inp["columns"].path for inp in inputs["calibrations"]])
         if self.selector_inst.produced_columns:
