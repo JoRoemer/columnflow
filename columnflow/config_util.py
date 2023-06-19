@@ -134,6 +134,7 @@ def create_category_combinations(
     name_fn: Callable[[Any], str],
     kwargs_fn: Callable[[Any], dict] | None = None,
     skip_existing: bool = True,
+    trace: bool = False,
 ) -> int:
     """
     Given a *config* object and sequences of *categories* in a dict, creates all combinations of
@@ -153,6 +154,10 @@ def create_category_combinations(
 
     If the name of a new category is already known to *config* it is skipped unless *skip_existing*
     is *False*.
+
+    If *trace* is set to *True* combinations have to contain regions from previous stages. For
+    example, three categories *A*, *B*, *C* would lead to the combinations *A*, *AB*, *ABC* but not
+    *BC*.
 
     Example:
 
@@ -195,7 +200,8 @@ def create_category_combinations(
     for _n_groups in range(2, n_groups + 1):
 
         # build all group combinations
-        for _group_names in itertools.combinations(group_names, _n_groups):
+        end_index = _n_groups if trace else len(group_names)
+        for _group_names in itertools.combinations(group_names[:end_index], _n_groups):
 
             # build the product of all categories for the given groups
             _categories = [categories[group_name] for group_name in _group_names]
@@ -223,7 +229,8 @@ def create_category_combinations(
                 n_created_categories += 1
 
                 # find direct parents and connect them
-                for _parent_group_names in itertools.combinations(_group_names, _n_groups - 1):
+                end_index_parent = _n_groups - 1 if trace else len(_group_names)
+                for _parent_group_names in itertools.combinations(_group_names[:end_index_parent], _n_groups - 1):
                     if len(_parent_group_names) == 1:
                         parent_cat_name = root_cats[_parent_group_names[0]].name
                     else:
