@@ -2570,7 +2570,7 @@ class ChunkedIOHandler(object):
         else:
             raise Exception(f"'{source}' cannot be opened as coffea_root")
 
-        return (source, tree.num_entries)
+        return ((source, tree_name), tree.num_entries)
 
     @classmethod
     def close_coffea_root(
