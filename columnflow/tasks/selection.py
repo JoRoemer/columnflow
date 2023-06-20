@@ -125,7 +125,7 @@ class SelectEvents(
         route_filter = RouteFilter(write_columns)
 
         # let the lfn_task prepare the nano file (basically determine a good pfn)
-        [(lfn_index, input_file)] = lfn_task.iter_nano_files(self)
+        [(lfn_index, input_file, tree_name)] = lfn_task.iter_nano_files(self)
 
         # open the input file with uproot
         with self.publish_step("load and open ..."):
@@ -134,7 +134,7 @@ class SelectEvents(
         # iterate over chunks of events and diffs
         n_calib = len(inputs["calibrations"])
         for (events, *diffs), pos in self.iter_chunked_io(
-            [nano_file] + [inp["columns"].path for inp in inputs["calibrations"]],
+            [(nano_file, tree_name)] + [inp["columns"].path for inp in inputs["calibrations"]],
             source_type=["coffea_root"] + n_calib * ["awkward_parquet"],
             read_columns=(1 + n_calib) * [read_columns],
         ):

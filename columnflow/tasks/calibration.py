@@ -87,7 +87,7 @@ class CalibrateEvents(
         route_filter = RouteFilter(write_columns)
 
         # let the lfn_task prepare the nano file (basically determine a good pfn)
-        [(lfn_index, input_file)] = lfn_task.iter_nano_files(self)
+        [(lfn_index, input_file, tree_name)] = lfn_task.iter_nano_files(self)
 
         # open with uproot
         with self.publish_step("load and open ..."):

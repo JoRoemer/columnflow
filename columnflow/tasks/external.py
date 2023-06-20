@@ -81,8 +81,10 @@ class GetDatasetLFNs(DatasetTask, law.tasks.TransferLocalFile):
 
         self.logger.info(f"found {len(lfns)} lfn(s) for dataset {self.dataset}")
 
+        tree_name = self.get_dataset_tree_name()
+
         tmp = law.LocalFileTarget(is_tmp=True)
-        tmp.dump(lfns, indent=4, formatter="json")
+        tmp.dump({"lfns": lfns, "tree": tree_name}, indent=4, formatter="json")
         self.transfer(tmp)
 
     def get_dataset_lfns_dasgoclient(
@@ -105,6 +107,12 @@ class GetDatasetLFNs(DatasetTask, law.tasks.TransferLocalFile):
             for line in out.strip().split("\n")
             if line.strip().endswith(".root")
         ]
+
+    def get_dataset_tree_name(self) -> str:
+        get_dataset_tree_name = self.config_inst.x("get_dataset_tree_name", None)
+        if not callable(get_dataset_tree_name):
+            return "Events"
+        return get_dataset_tree_name(self.dataset_inst, self.global_shift_inst)
 
     def iter_nano_files(
         self,
@@ -153,7 +161,8 @@ class GetDatasetLFNs(DatasetTask, law.tasks.TransferLocalFile):
         # get all lfns
         output = self.output()
         target = (output.random_target() if isinstance(output, law.TargetCollection) else output)
-        lfns = target.load(formatter="json")
+        lfns_config = target.load(formatter="json")
+        lfns = lfns_config["lfns"]
 
         # loop
         for lfn_index in lfn_indices:
@@ -216,7 +225,7 @@ class GetDatasetLFNs(DatasetTask, law.tasks.TransferLocalFile):
             input_size = law.util.human_bytes(input_stat.st_size, fmt=True)
             task.publish_message(f"lfn {lfn}, size is {input_size}")
 
-            yield (lfn_index, input_file)
+            yield (lfn_index, input_file, lfns_config["tree"])
 
 
 GetDatasetLFNsWrapper = wrapper_factory(

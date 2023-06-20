@@ -2588,7 +2588,12 @@ class ChunkedIOHandler(object):
     @classmethod
     def read_coffea_root(
         cls,
-        source_object: str | uproot.ReadOnlyDirectory,
+        source_object: (
+            str |
+            uproot.ReadOnlyDirectory |
+            tuple[str, str] |
+            tuple[uproot.ReadOnlyDirectory, str]
+        ),
         chunk_pos: ChunkPosition,
         read_options: dict | None = None,
         read_columns: set[str | Route] | None = None,
@@ -2600,6 +2605,10 @@ class ChunkedIOHandler(object):
         and, if not already present, added as nested field ``iteritems_options.filter_name`` to
         *read_options*.
         """
+        tree_name = "Events"
+        if isinstance(source_object, tuple) and len(source_object) == 2:
+            source_object, tree_name = source_object
+        treepath = f"/{tree_name}"
         # default read options
         read_options = read_options or {}
         read_options["runtime_cache"] = None
@@ -2616,6 +2625,7 @@ class ChunkedIOHandler(object):
         # read the events chunk into memory
         chunk = coffea.nanoevents.NanoEventsFactory.from_root(
             source_object,
+            treepath=treepath,
             entry_start=chunk_pos.entry_start,
             entry_stop=chunk_pos.entry_stop,
             **read_options,
