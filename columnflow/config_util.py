@@ -28,7 +28,8 @@ def get_root_processes_from_campaign(campaign: od.Campaign) -> od.UniqueObjectIn
     processes = set.union(*map(set, (dataset.processes for dataset in campaign.datasets)))
 
     # get their root processes
-    root_processes = set.union(*map(set, (process.get_root_processes() for process in processes)))
+    root_processes = set.union(*map(set, (
+        process.get_root_processes() if process.get_root_processes() != [] else [process] for process in processes)))
 
     # create an empty index and fill subprocesses via walking
     index = od.UniqueObjectIndex(cls=od.Process)
