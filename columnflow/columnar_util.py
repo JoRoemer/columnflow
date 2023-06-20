@@ -978,7 +978,12 @@ def sorted_ak_to_parquet(
     # end workaround
 
     # TODO: empty fields cannot be saved to parquet, but for that we would need to identify them
-    ak.to_parquet(ak_array, *args, **kwargs)
+    if ak.to_list(ak_array) == []:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+        pq.write_table(pa.Table.from_arrays([]), args[0])
+    else:
+        ak.to_parquet(ak_array, *args, **kwargs)
 
 
 def attach_behavior(
